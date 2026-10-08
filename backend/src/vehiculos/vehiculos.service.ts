@@ -46,7 +46,7 @@ export class VehiculosService {
     try {
       const vehiculo = await this.prisma.vehiculos.update({
         where: { id: BigInt(id) },
-        data: { ...dto, updated_at: new Date() },
+        data: Object.assign({}, dto, { updated_at: new Date() }),
       });
       return this.toResponse(vehiculo);
     } catch (error) {

@@ -1,11 +1,5 @@
+.DS_Store
 node_modules/
-dist/
-coverage/
-*.tsbuildinfo
 .env
 .env.*
 !.env.example
-src/generated/
-.DS_Store
-
-/src/generated/prisma

@@ -29,6 +29,13 @@ npm run start:dev         # http://localhost:3000
 Reglas: `placa` obligatoria y única (≤10), `marca` y `modelo` obligatorias (≤50), `anio` entero entre 1950 y 2100, `color` opcional (≤30).
 El `id` (BIGINT) se devuelve como string.
 
+## Probar los endpoints
+
+- **Swagger (navegador):** http://localhost:3000/api
+- **REST Client (Antigravity / VS Code):** [`requests/vehiculos.http`](requests/vehiculos.http)
+- **Postman / Insomnia / Thunder Client:** [`requests/vehiculos.postman_collection.json`](requests/vehiculos.postman_collection.json)
+- Guía paso a paso: [`docs/guia-pruebas-endpoints.md`](docs/guia-pruebas-endpoints.md)
+
 ## Pruebas
 
 ```bash

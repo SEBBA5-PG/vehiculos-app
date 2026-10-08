@@ -1,0 +1,669 @@
+{
+  "info": {
+    "name": "CRUD Vehículos · Caja negra",
+    "description": "Casos TC-VEH de la sección 10 de la guía. Ejecutar en orden con Collection Runner. Requiere la API en {{base}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TC-VEH-01 · Crear vehículo válido",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"marca\": \"Toyota\",\n  \"modelo\": \"Corolla\",\n  \"anio\": 2024,\n  \"color\": \"Blanco\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-01 · Crear vehículo válido → HTTP 201', () => pm.response.to.have.status(201));",
+              "const b = pm.response.json(); pm.collectionVariables.set('id', b.id);\npm.test('id serializado como string', () => pm.expect(b.id).to.be.a('string'));"
+            ]
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Placa única por ejecución (máx. 10 caracteres) para poder repetir la colección",
+              "pm.collectionVariables.set('placa', 'PM' + Date.now().toString().slice(-6));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-02 · Cuerpo vacío",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-02 · Cuerpo vacío → HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-03 · Placa duplicada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"marca\": \"Mazda\",\n  \"modelo\": \"3\",\n  \"anio\": 2025,\n  \"color\": \"Rojo\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-03 · Placa duplicada → HTTP 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-04 · Propiedad no declarada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"placa\": \"XYZ987\",\n  \"marca\": \"Renault\",\n  \"modelo\": \"Logan\",\n  \"anio\": 2023,\n  \"color\": \"Gris\",\n  \"propietario\": \"campo-no-permitido\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-04 · Propiedad no declarada → HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-05 · Listar vehículos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-05 · Listar vehículos → HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve un arreglo', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-06 · Consultar ID existente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-06 · Consultar ID existente → HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Devuelve el vehículo creado', () => pm.expect(pm.response.json().placa).to.eql(pm.collectionVariables.get('placa')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-07 · Consultar ID inexistente",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/999999999",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "999999999"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-07 · Consultar ID inexistente → HTTP 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-08 · ID inválido",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/abc",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "abc"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-08 · ID inválido → HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-09 · Actualizar solo color",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id}}"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"color\": \"Negro\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-09 · Actualizar solo color → HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('Color actualizado', () => pm.expect(pm.response.json().color).to.eql('Negro'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-09b · Verificar persistencia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-09b · Verificar persistencia → HTTP 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();\npm.test('Cambio persistido y resto intacto', () => { pm.expect(b.color).to.eql('Negro'); pm.expect(b.marca).to.eql('Toyota'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-10 · anio = 1949",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marca\": \"Ford\",\n  \"modelo\": \"T\",\n  \"placa\": \"LIM1949\",\n  \"anio\": 1949\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-10 · anio = 1949 → HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Límite · anio = 1950",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marca\": \"Ford\",\n  \"modelo\": \"T\",\n  \"placa\": \"LIM1950\",\n  \"anio\": 1950\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Límite · anio = 1950 → HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('id1950', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Límite · anio = 2100",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marca\": \"Ford\",\n  \"modelo\": \"T\",\n  \"placa\": \"LIM2100\",\n  \"anio\": 2100\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Límite · anio = 2100 → HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('id2100', pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Límite · anio = 2101",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base}}/vehiculos",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"marca\": \"Ford\",\n  \"modelo\": \"T\",\n  \"placa\": \"LIM2101\",\n  \"anio\": 2101\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Límite · anio = 2101 → HTTP 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-11 · Eliminar ID existente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-11 · Eliminar ID existente → HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "TC-VEH-12 · Eliminar ID inexistente",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC-VEH-12 · Eliminar ID inexistente → HTTP 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Limpieza · borrar límite 1950",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id1950}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id1950}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Limpieza · borrar límite 1950 → HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Limpieza · borrar límite 2100",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base}}/vehiculos/{{id2100}}",
+          "host": [
+            "{{base}}"
+          ],
+          "path": [
+            "vehiculos",
+            "{{id2100}}"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Limpieza · borrar límite 2100 → HTTP 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "placa",
+      "value": ""
+    },
+    {
+      "key": "id",
+      "value": ""
+    },
+    {
+      "key": "id1950",
+      "value": ""
+    },
+    {
+      "key": "id2100",
+      "value": ""
+    }
+  ]
+}

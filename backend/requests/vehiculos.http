@@ -1,0 +1,115 @@
+# Pruebas de caja negra del CRUD /vehiculos (sección 10 de la guía)
+# Uso: VS Code + extensión "REST Client" (humao.rest-client) o IntelliJ/WebStorm HTTP Client.
+# 1) Arranca la API: npm run start:dev   2) Pulsa "Send Request" sobre cada bloque, en orden.
+# Cambia @placa si ya existe en la base (máx. 10 caracteres).
+
+@base = http://localhost:3000
+@placa = ABC123
+
+### TC-VEH-01 · Crear vehículo válido → 201
+# @name crear
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{
+  "placa": "{{placa}}",
+  "marca": "Toyota",
+  "modelo": "Corolla",
+  "anio": 2024,
+  "color": "Blanco"
+}
+
+### (id capturado automáticamente de la respuesta anterior)
+@id = {{crear.response.body.id}}
+
+### TC-VEH-02 · Cuerpo vacío → 400
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{}
+
+### TC-VEH-03 · Placa duplicada → 409
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{
+  "placa": "{{placa}}",
+  "marca": "Mazda",
+  "modelo": "3",
+  "anio": 2025,
+  "color": "Rojo"
+}
+
+### TC-VEH-04 · Propiedad no declarada → 400
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{
+  "placa": "XYZ987",
+  "marca": "Renault",
+  "modelo": "Logan",
+  "anio": 2023,
+  "color": "Gris",
+  "propietario": "campo-no-permitido"
+}
+
+### TC-VEH-05 · Listar → 200 con arreglo
+GET {{base}}/vehiculos
+
+### TC-VEH-06 · Consultar ID existente → 200
+GET {{base}}/vehiculos/{{id}}
+
+### TC-VEH-07 · Consultar ID inexistente → 404
+GET {{base}}/vehiculos/999999999
+
+### TC-VEH-08 · ID inválido → 400
+GET {{base}}/vehiculos/abc
+
+### TC-VEH-09 · Actualizar solo color → 200
+PATCH {{base}}/vehiculos/{{id}}
+Content-Type: application/json
+
+{
+  "color": "Negro"
+}
+
+### TC-VEH-09 · Verificar que el cambio persistió → 200, color = "Negro"
+GET {{base}}/vehiculos/{{id}}
+
+### TC-VEH-10 · anio = 1949 → 400
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{ "placa": "LIM1949", "marca": "Ford", "modelo": "T", "anio": 1949 }
+
+### Límite · anio = 1950 → 201
+# @name lim1950
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{ "placa": "LIM1950", "marca": "Ford", "modelo": "T", "anio": 1950 }
+
+### Límite · anio = 2100 → 201
+# @name lim2100
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{ "placa": "LIM2100", "marca": "Ford", "modelo": "T", "anio": 2100 }
+
+### Límite · anio = 2101 → 400
+POST {{base}}/vehiculos
+Content-Type: application/json
+
+{ "placa": "LIM2101", "marca": "Ford", "modelo": "T", "anio": 2101 }
+
+### TC-VEH-11 · Eliminar ID existente → 204
+DELETE {{base}}/vehiculos/{{id}}
+
+### TC-VEH-12 · Eliminar ID inexistente (el mismo de antes) → 404
+DELETE {{base}}/vehiculos/{{id}}
+
+### Limpieza · borrar vehículos de límite → 204
+DELETE {{base}}/vehiculos/{{lim1950.response.body.id}}
+
+###
+DELETE {{base}}/vehiculos/{{lim2100.response.body.id}}
